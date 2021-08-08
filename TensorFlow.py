@@ -34,19 +34,31 @@ output_size = 1 # Only one output y
 model = tf.keras.Sequential([# Dense takes the inputs provided to the model and 
                             # calculates the dot product (np.dot(inputs,weights))
                             # and adds bias (np.dot(inputs,weights) + bias)
-                            tf.keras.layers.Dense(output_size)
+                            tf.keras.layers.Dense(output_size
+                                                , kernel_initializer=tf.random_uniform_initializer(minval=-0.1, maxval=0.1) # Kernel here means weight
+                                                , bias_initializer=tf.random_uniform_initializer(minval=-0.1, maxval=0.1) # These are the randomly generated Biases
+                                                )
+                          
                             ])
+# if you want to use a custom optimizer instead of the SGD optimizer below this is the same other than being able to set the learning rate ourselves
+custom_optimizer = tf.keras.optimizers.SGD(learning_rate=0.02)
+
 model.compile(
-    optimizer='sgd' # Using the Stochastic gradient descent optimization algorithm
-    , loss='mean_squared_error' # Applying built-in loss function mean_squared_error (check out other options)
-    ) 
+  optimizer=custom_optimizer # Using custom optimization algorithm
+, loss='mean_squared_error' # Applying built-in loss function mean_squared_error (check out other options)
+) 
+
+# model.compile(
+#     optimizer='sgd' # Using the Stochastic gradient descent optimization algorithm
+#     , loss='mean_squared_error' # Applying built-in loss function mean_squared_error (check out other options)
+# ) 
 
 
 model.fit(
     training_data['inputs']  # Descriptors
   , training_data['targets'] # Response Variable
   , epochs = 100 # Epoch = Iteration over the full Data Set
-  , verbose = 0 # 0 - Silent or no output 1 - full output
+  , verbose = 2 # 0 - Silent or no output 1 - full output
   )
 
 # Review the results. The Loss should be decreasing meaning the model is working as intended
@@ -56,9 +68,9 @@ model.fit(
 model.layers[0].get_weights() # Gets Weights and Biases
 
 
-# [array([[1.9645482 ],                   <---- Weights Array 2~
+# [array([[1.9645482 ],                   <---- Weights Array roughly 2
 #        [0.04933998]], dtype=float32),   
-#  array([5.026239], dtype=float32)]      <---- Biases Array 5~
+#  array([5.026239], dtype=float32)]      <---- Biases Array roughly 5
 
 model.layers[0].get_weights()[0] # Gets Weights 
 model.layers[0].get_weights()[1] # Gets Biases 
@@ -80,3 +92,4 @@ plt.plot(np.squeeze(model.predict_on_batch(training_data['inputs'])), np.squeeze
 plt.xlabel('outputs')
 plt.ylabel('targets')
 plt.show()
+# %%
